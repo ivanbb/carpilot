@@ -1,3 +1,4 @@
+
 """
 Script for collecting datasets from the keyboard
 """
@@ -42,9 +43,11 @@ while(True):
         data.append([image, output])
         if len(data) % 500 == 0:
             print(len(data))
+            
     cv2.imshow('window', image)
     keys = get_key()
-    if False: #'O' in keys:
+
+    if 'P' in keys:
         if paused:
             print('NOT Paused')
             paused = False
@@ -57,6 +60,7 @@ while(True):
     if cv2.waitKey(25) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
         break
+
 if data != []:
     ch = input('Save data ? (y/n): ')
     if ch == 'y':

@@ -1,6 +1,9 @@
+# SOURCE https://github.com/Sentdex/pygta5/blob/master/Tutorial%20Codes/Part%201-7/grabscreen.py
+
 """
 Script for grabbing screen on windows
 """
+
 import cv2
 import numpy as np
 import win32gui, win32ui, win32con, win32api

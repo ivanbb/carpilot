@@ -1,6 +1,8 @@
+
 """
 Script for car recognition
 """
+
 import cv2
 import numpy as np
 import Model_detect_car as mdc
@@ -19,17 +21,19 @@ cv2.namedWindow('setting')
 
 cv2.createTrackbar('tresh','setting', 0, 30, lambda x: x)
 cv2.createTrackbar('box','setting', 0, 128, lambda x: x)
-# cv2.createTrackbar('x1','setting', 0, 300, lambda x: x)
-# cv2.createTrackbar('x2','setting', 0, 300, lambda x: x)
-# cv2.createTrackbar('x3','setting', 0, 300, lambda x: x)
-# cv2.createTrackbar('x4','setting', 0, 300, lambda x: x)
 
+"""
+	Select interesting region
+"""
 def roi(img, vertices):
 	mask = np.zeros_like(img)
 	cv2.fillPoly(mask, vertices, [255,255,255])
 	masked = cv2.bitwise_and(img, mask)
 	return masked
 
+"""
+	Show value brightness for forward car
+"""
 def draw_text(text, img):
 	font = cv2.FONT_HERSHEY_SIMPLEX
 	bottomLeftCornerOfText = (10, 10)
@@ -46,8 +50,7 @@ def draw_boxes(img, bboxes):
 	return draw_img
 
 def search_cars(img):
-	#img = img[350:720, 0:1280]
-	box = 64#cv2.getTrackbarPos('box','setting')
+	box = 64
 	img = img.reshape(1,HEIGHT, WEIGHT,3)
 	heat = heatmodel.predict(img)
 	xx, yy = np.meshgrid(np.arange(heat.shape[2]),np.arange(heat.shape[1]))
@@ -55,17 +58,14 @@ def search_cars(img):
 	y = (yy[heat[0,:,:,0]>0.999])
 	hot_windows = []
 	for i,j in zip(x,y):
-		hot_windows.append(((i*8,j*8), (i*8+box,j*8+box))) #68
+		hot_windows.append(((i*8,j*8), (i*8+box,j*8+box)))
 	return hot_windows
-
-#84/5
 
 def main(img):
 	vertices = np.array([[0,HEIGHT],[90, 0], [141, 0], [WEIGHT,HEIGHT]], np.int32)
 	orig_img = img
 	img = img[OBLAST_H[0]:OBLAST_H[1], OBLAST_W[0]:OBLAST_W[1]]
 	img = roi(img, [vertices])
-	#return img
 	hot_windows = search_cars(img)
 	window_img = draw_boxes(orig_img, hot_windows)
 	heat = np.zeros_like(img[:,:,0]).astype(np.float)
@@ -73,18 +73,15 @@ def main(img):
 	heat = apply_threshold(heat, 3)
 	heatmap = np.clip(heat, 0, 255)
 	avg = np.average(heatmap)
-	#heatmap = heatmap.reshape(HEIGHT, WEIGHT, 1)
 	heatmap = np.uint8(heatmap)
 	img = cv2.cvtColor(heatmap, cv2.COLOR_GRAY2BGR)
 	img = draw_text(avg, img)
-	#boxes = label(heatmap)
-	#draw_img = draw_labeled_bboxes(np.copy(img), boxes)
 	return window_img, img, avg
 
 def add_heat(heatmap, bbox_list):
 	tr = cv2.getTrackbarPos('tresh','setting')
 	for box in bbox_list:
-		heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1 + 5 # 3
+		heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1 + 5
 	return heatmap
 
 def apply_threshold(heatmap, threshold):

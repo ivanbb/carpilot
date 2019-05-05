@@ -1,6 +1,8 @@
+
 """
 Model for Car Recognition
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,8 +14,7 @@ from keras.layers.normalization import BatchNormalization
 from sklearn.model_selection import train_test_split
 
 def create_model(input_shape=(64,64,3)):
-    filt = 64
-
+    filt = 64 # (64 x 64) size window for found car
     model = Sequential()
     model.add(Lambda(lambda x: x/(filt-0.5) - 1,input_shape=input_shape, output_shape=input_shape))
     model.add(Convolution2D(filt, (3, 3), activation='relu', name='conv1',input_shape=input_shape, border_mode="same"))  
@@ -29,6 +30,9 @@ def create_model(input_shape=(64,64,3)):
     model.summary()
     return model
 
+"""
+	Show result learning model
+"""
 def plot_results(history):
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])
@@ -58,7 +62,6 @@ def train_model(model):
 	print(X_test.shape[0], 'test samples')
 
 	model.add(Flatten())
-	#opt = optimizers.Nadam(lr=0.00001)#, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
 	opt = optimizers.RMSprop(lr=0.0001)
 	model.compile(loss='mse', optimizer=opt, metrics=['accuracy'])
 	history = model.fit(X_train, Y_train, batch_size=128, epochs=10, verbose=1, validation_data=(X_test, Y_test))
